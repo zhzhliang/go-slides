@@ -1,0 +1,158 @@
+Go并发范式
+Go Concurrency Patterns
+
+
+ezhao
+Tencent
+ezhao@tencent.com
+
+
+* 1. 模式
+
+- Atomics, Locks, etc.
+- Actor
+- CSP (Communicating Sequential Processes)
+
+Don’t communicate by sharing memory, share memory by communicating
+
+* 2. Building Blocks
+
+- goroutine
+- channel
+- select
+- sync
+- context
+
+* channel
+
+- goroutine safe
+- FIFO，buffered channel
+- 读/写可能会阻塞goroutine
+- 读写nil channel会阻塞
+- 写closed channel会panic，但可以读出零值
+
+- channel不是银弹（锁、性能问题）
+
+* select
+
+select用来处理多个channel（类似多路复用）
+
+- 每个case都是一个通信操作
+- 如果所有case都没有ready，则执行default块（如果有的话）或者阻塞select
+- 如果多个case ready，随机执行一个
+
+.code ./dist/select.go /START0/,/STOP0/
+
+
+* sync
+
+- Cond：条件变量
+- Map：线程/协程安全Map
+- Mutex
+- Once
+- Pool：临时对象池
+- RWMutex：读写锁
+- WaitGroup：等待多个任务完成
+
+除了Once, Pool, WaitGroup，其他应该慎用
+
+* context
+
+Go 1.7加入，用于简化多个goroutine间的以下操作：
+
+- 取消
+- 超时
+- 存取上下文数据
+
+.code ./dist/context.go
+
+
+* 3. 并发范式
+
+* for-select
+
+Go语言中for-select结构非常常见。
+
+- 无限循环
+
+.code ./dist/for-select.go /START0/,/STOP0/
+
+- 循环发送
+
+.code ./dist/for-select.go /START1/,/STOP1/
+
+
+* for-select timeout
+
+time.After返回一个channel，这个channel会block指定时间。
+
+.play ./dist/for-select-timeout.go /START0/,/STOP0/
+
+* for-select cancel
+
+通过channel，可以手动取消任务：
+
+.play ./dist/for-select-cancel.go /START0/,/STOP0/
+
+
+* context
+
+当然我们也可以用context实现timeout和cancel：
+
+.play ./dist/context-example.go /START0/,/STOP0/
+
+* 生成器
+
+for-range可以用于channel，即生成器：
+
+.code ./dist/generator.go /START0/,/STOP0/
+
+.play ./dist/generator.go /START1/,/STOP1/
+
+* 多个任务
+
+任务间没有依赖关系，可以并发执行，借助sync.WaitGroup简单实现：
+
+.play ./dist/waitgroup.go /START1/,/STOP1/
+
+* 任务队列
+
+后置任务依赖前置任务结果，串联执行，也称pipeline。（合适情况下用buffered channel）
+
+.play ./dist/pipeline.go /START1/,/STOP1/
+
+
+
+
+* Fan-in
+
+Fan-in模式将多个channel收敛到一个channel：
+
+.image ./dist/fanin.png _ 400
+
+有如下生成器：
+
+.code ./dist/fanin.go /START2/,/STOP2/
+
+* Fan-in
+
+.code ./dist/fanin.go /START3/,/STOP3/
+
+.play ./dist/fanin.go /START2/,/STOP2/
+
+* Fan-out
+
+Fan-out模式将一个channel随机分发到多个channel：
+
+.image ./dist/fanout.png
+
+* Fan-out
+
+.code ./dist/fanout.go /START3/,/STOP3/
+
+* Fan-out
+
+使用Fan-in例子里的boring生成器：
+.play ./dist/fanout.go /START2/,/STOP2/
+
+
