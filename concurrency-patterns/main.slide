@@ -122,8 +122,6 @@ for-range可以用于channel，即生成器：
 .play ./dist/pipeline.go /START1/,/STOP1/
 
 
-
-
 * Fan-in
 
 Fan-in模式将多个channel收敛到一个channel：
@@ -156,3 +154,35 @@ Fan-out模式将一个channel随机分发到多个channel：
 .play ./dist/fanout.go /START2/,/STOP2/
 
 
+* Future&Promise
+
+简单的Future&Promise实现：
+
+.code ./dist/future-promise.go /START1/,/STOP1/
+
+这里省略了wait, then等方法实现。
+
+* Future&Promise
+.code ./dist/future-promise.go /START2/,/STOP2/
+
+.play ./dist/future-promise.go /START3/,/STOP3/
+
+
+* map&filter
+
+并行map，filter：
+
+.code ./dist/map-filter.go /START1/,/STOP1/
+
+* map&filter
+.play ./dist/map-filter.go /START2/,/STOP2/
+
+
+* 4. Tips
+
+- channel是一个非常低级的工具，要小心使用
+- 小心死锁deadlock（panic）
+- goroutine泄漏
+- race检测: go run -race xxx.go
+- 多用benchmark
+- pprof
