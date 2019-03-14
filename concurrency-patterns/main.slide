@@ -136,7 +136,7 @@ Fan-in模式将多个channel收敛到一个channel：
 
 .code ./dist/fanin.go /START3/,/STOP3/
 
-.play ./dist/fanin.go /START2/,/STOP2/
+.play ./dist/fanin.go /START1/,/STOP1/
 
 * Fan-out
 
@@ -180,7 +180,7 @@ Fan-out模式将一个channel随机分发到多个channel：
 
 * 4. Tips
 
-- channel是一个非常低级的工具，要小心使用
+- channel是一个非常低级的工具，尽量封装使用，避免channel满天飞。
 - 小心死锁deadlock（panic）
 - goroutine泄漏
 - race检测: go run -race xxx.go
